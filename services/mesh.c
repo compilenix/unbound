@@ -679,6 +679,7 @@ static void mesh_schedule_prefetch(struct mesh_area* mesh,
 	struct query_info* qinfo, uint16_t qflags, time_t leeway, int run,
 	int rpz_passthru)
 {
+	log_query_info(VERB_QUERY, "schedule prefetch", qinfo);
 	/* Explicitly set the BIT_RD regardless of the client's flags. This is
 	 * for a prefetch query (no client attached) but it needs to be treated
 	 * as a recursion query. */
@@ -696,10 +697,11 @@ static void mesh_schedule_prefetch(struct mesh_area* mesh,
 			sock_list_insert(&s->s.blacklist, NULL, 0, s->s.region);
 		if(s->s.prefetch_leeway < leeway)
 			s->s.prefetch_leeway = leeway;
+		log_query_info(VERB_QUERY, "prefetch already exists", qinfo);
 		return;
 	}
 	if(!mesh_make_new_space(mesh, NULL)) {
-		verbose(VERB_ALGO, "Too many queries. dropped prefetch.");
+		log_query_info(VERB_QUERY, "Too many queries. dropped prefetch.", qinfo);
 		mesh->stats_dropped ++;
 		return;
 	}
@@ -716,6 +718,7 @@ static void mesh_schedule_prefetch(struct mesh_area* mesh,
 #endif
 	rbtree_insert(&mesh->all, &s->node);
 	log_assert(n != NULL);
+	log_query_info(VERB_QUERY, "prefetch scheduled", qinfo);
 	/* set detached (it is now) */
 	mesh->num_detached_states++;
 	/* make it ignore the cache */
@@ -745,6 +748,7 @@ static void mesh_schedule_prefetch(struct mesh_area* mesh,
 #endif
 		rbtree_insert(&mesh->run, &s->run_node);
 		log_assert(n != NULL);
+		log_query_info(VERB_QUERY, "prefetch scheduled", qinfo);
 		return;
 	}
 
