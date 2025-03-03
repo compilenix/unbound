@@ -764,6 +764,7 @@ static void mesh_schedule_prefetch_subnet(struct mesh_area* mesh,
 	struct query_info* qinfo, uint16_t qflags, time_t leeway, int run,
 	int rpz_passthru, struct sockaddr_storage* addr, struct edns_option* edns_list)
 {
+	log_query_info(VERB_QUERY, "schedule prefetch subnet", qinfo);
 	struct mesh_state* s = NULL;
 	struct edns_option* opt = NULL;
 #ifdef UNBOUND_DEBUG
@@ -774,7 +775,7 @@ static void mesh_schedule_prefetch_subnet(struct mesh_area* mesh,
 	 * as a recursion query. */
 	uint16_t mesh_flags = BIT_RD|(qflags&BIT_CD);
 	if(!mesh_make_new_space(mesh, NULL)) {
-		verbose(VERB_ALGO, "Too many queries. dropped prefetch.");
+		log_query_info(VERB_QUERY, "Too many queries. dropped prefetch subnet.", qinfo);
 		mesh->stats_dropped ++;
 		return;
 	}
@@ -807,6 +808,7 @@ static void mesh_schedule_prefetch_subnet(struct mesh_area* mesh,
 #endif
 	rbtree_insert(&mesh->all, &s->node);
 	log_assert(n != NULL);
+	log_query_info(VERB_QUERY, "prefetch subnet scheduled", qinfo);
 	/* set detached (it is now) */
 	mesh->num_detached_states++;
 	/* make it ignore the cache */
@@ -836,6 +838,7 @@ static void mesh_schedule_prefetch_subnet(struct mesh_area* mesh,
 #endif
 		rbtree_insert(&mesh->run, &s->run_node);
 		log_assert(n != NULL);
+		log_query_info(VERB_QUERY, "prefetch subnet scheduled", qinfo);
 		return;
 	}
 
